@@ -91,6 +91,25 @@ input.onButtonPressed(Button.A, function () {
 })
 function discoverTreeMaze () {
     drive_car(0)
+    if (crossroad_type == 1 || crossroad_type == 5 || (crossroad_type == 3 || crossroad_type == 7)) {
+        basic.showNumber(crossroad_type)
+        drive_car(1)
+    }
+    if (crossroad_type == 2) {
+        basic.showNumber(crossroad_type)
+        drive_car(2)
+    }
+    if (crossroad_type == 4) {
+        basic.showNumber(crossroad_type)
+        drive_car(3)
+    }
+    if (crossroad_type == 6) {
+        basic.showNumber(crossroad_type)
+    }
+    if (crossroad_type == 8) {
+        basic.showNumber(crossroad_type)
+        drive_car(4)
+    }
 }
 // 車輛駕駛(模式)
 // 0:直行, 1:左轉, 2:右轉, 3:迴轉, 4:停止
@@ -111,7 +130,6 @@ function drive_car (Mode: number) {
                 break;
             }
         }
-        basic.clearScreen()
         detect_crossroad_type()
     }
     // 左轉
@@ -193,6 +211,7 @@ input.onButtonPressed(Button.AB, function () {
 })
 input.onButtonPressed(Button.B, function () {
     if (ModeSelected == 0) {
+        music.playTone(262, music.beat(BeatFraction.Half))
         basic.pause(1000)
         CalibrateIR()
         music.playMelody("C C E - C5 C5 - - ", 120)
