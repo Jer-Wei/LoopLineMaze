@@ -1,0 +1,21 @@
+{
+    "name": "迴圈線迷宮鼠",
+    "description": "",
+    "dependencies": {
+        "core": "*",
+        "radio": "*",
+        "BitRacer_block": "github:jer-wei/bitracer_block#70123d02bc1f97eef218483be0d198445508b02d"
+    },
+    "files": [
+        "main.blocks",
+        "main.ts",
+        "README.md"
+    ],
+    "testFiles": [
+        "test.ts"
+    ],
+    "supportedTargets": [
+        "microbit"
+    ],
+    "preferredEditor": "blocksprj"
+}
