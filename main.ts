@@ -78,8 +78,8 @@ function trace_line (speed: number, Kp: number, Kd: number) {
     delta_err = trace_err - trace_err_old
     trace_err_old = trace_err
     PD_Value = Kp * trace_err + Kd * delta_err
-    BitRacer.motorRun(BitRacer.Motors.M_R, speed - PD_Value)
-    BitRacer.motorRun(BitRacer.Motors.M_L, speed + PD_Value)
+    BitRacer.motorRun(BitRacer.Motors.M_L, speed - PD_Value)
+    BitRacer.motorRun(BitRacer.Motors.M_R, speed + PD_Value)
 }
 input.onButtonPressed(Button.A, function () {
     BitRacer.motorRun(BitRacer.Motors.All, 0)
@@ -99,9 +99,10 @@ function drive_car (Mode: number) {
     speed_trun = 390
     // 直行
     if (Mode == 0) {
-        basic.showString("S")
+        basic.showString("^")
+        line_counter = 0
         while (true) {
-            trace_line(350, 250, 140)
+            trace_line(320, 250, 140)
             IR_new = get_IR_Data()
             line_counter += 1
             if (line_counter > 40 && (IR_new[0] > 1200 || IR_new[4] > 1200 || IR_new[1] < 500 && IR_new[2] < 500 && IR_new[3] < 500)) {
@@ -197,6 +198,7 @@ input.onButtonPressed(Button.B, function () {
         music.playMelody("C C E - C5 C5 - - ", 120)
     }
     if (ModeSelected == 1) {
+        basic.pause(1000)
         discoverTreeMaze()
     }
     if (ModeSelected == 2) {
@@ -220,7 +222,7 @@ input.onButtonPressed(Button.B, function () {
 function CalibrateIR () {
     BitRacer.CalibrateBegin()
     BitRacer.motorRun(BitRacer.Motors.All, 200)
-    basic.pause(500)
+    basic.pause(600)
     BitRacer.motorRun(BitRacer.Motors.All, 0)
     BitRacer.CalibrateEnd(BitRacer.LineColor.White)
 }
