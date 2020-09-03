@@ -9,6 +9,7 @@ let trace_err = 0
 let delta_err = 0
 let trace_err_old = 0
 let PD_Value = 0
+let ModeSelected = 0
 let speed_trun = 0
 let line_counter = 0
 let turn_counter = 0
@@ -96,6 +97,13 @@ function trace_line (speed: number, Kp: number, Kd: number) {
     BitRacer.motorRun(BitRacer.Motors.M_R, speed - PD_Value)
     BitRacer.motorRun(BitRacer.Motors.M_L, speed + PD_Value)
 }
+input.onButtonPressed(Button.A, function () {
+    ModeSelected += 1
+    if (ModeSelected > 5) {
+        ModeSelected = 0
+    }
+    basic.showNumber(ModeSelected)
+})
 // 車輛駕駛(模式)
 // 0:直行, 1:左轉, 2:右轉, 3:迴轉, 4:停止
 function drive_car (Mode: number) {
@@ -191,6 +199,18 @@ function drive_car (Mode: number) {
         BitRacer.motorRun(BitRacer.Motors.All, 0)
     }
 }
+input.onButtonPressed(Button.AB, function () {
+    BitRacer.motorRun(BitRacer.Motors.All, 0)
+})
+input.onButtonPressed(Button.B, function () {
+    if (ModeSelected == 0) {
+        CalibrateIR()
+    }
+    if (ModeSelected == 1) {
+        CalibrateIR()
+    }
+})
+// 校正紅外線感應器的特性曲線
 function CalibrateIR () {
     BitRacer.CalibrateBegin()
     BitRacer.motorRun(BitRacer.Motors.All, 250)
