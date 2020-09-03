@@ -1,19 +1,3 @@
-let IR_L = 0
-let IR_R = 0
-let IR_new: number[] = []
-let IR_M = 0
-let goal_counter = 0
-let crossroad_type = 0
-let line_position = 0
-let trace_err = 0
-let delta_err = 0
-let trace_err_old = 0
-let PD_Value = 0
-let ModeSelected = 0
-let speed_trun = 0
-let line_counter = 0
-let turn_counter = 0
-let IR: number[] = []
 function detect_crossroad_type () {
     IR_L = 0
     IR_R = 0
@@ -98,12 +82,16 @@ function trace_line (speed: number, Kp: number, Kd: number) {
     BitRacer.motorRun(BitRacer.Motors.M_L, speed + PD_Value)
 }
 input.onButtonPressed(Button.A, function () {
+    BitRacer.motorRun(BitRacer.Motors.All, 0)
     ModeSelected += 1
     if (ModeSelected > 5) {
         ModeSelected = 0
     }
     basic.showNumber(ModeSelected)
 })
+function discoverTreeMaze () {
+    drive_car(0)
+}
 // 車輛駕駛(模式)
 // 0:直行, 1:左轉, 2:右轉, 3:迴轉, 4:停止
 function drive_car (Mode: number) {
@@ -113,7 +101,7 @@ function drive_car (Mode: number) {
     if (Mode == 0) {
         basic.showString("S")
         while (true) {
-            trace_line(320, 250, 140)
+            trace_line(350, 250, 140)
             IR_new = get_IR_Data()
             line_counter += 1
             if (line_counter > 40 && (IR_new[0] > 1200 || IR_new[4] > 1200 || IR_new[1] < 500 && IR_new[2] < 500 && IR_new[3] < 500)) {
@@ -204,16 +192,34 @@ input.onButtonPressed(Button.AB, function () {
 })
 input.onButtonPressed(Button.B, function () {
     if (ModeSelected == 0) {
+        basic.pause(1000)
         CalibrateIR()
+        music.playMelody("C C E - C5 C5 - - ", 120)
     }
     if (ModeSelected == 1) {
-        CalibrateIR()
+        discoverTreeMaze()
+    }
+    if (ModeSelected == 2) {
+    	
+    }
+    if (ModeSelected == 3) {
+    	
+    }
+    if (ModeSelected == 4) {
+    	
+    }
+    if (ModeSelected == 5) {
+        BitRacer.motorRun(BitRacer.Motors.All, 900)
+        basic.pause(5000)
+        BitRacer.motorRun(BitRacer.Motors.All, -900)
+        basic.pause(5000)
+        BitRacer.motorRun(BitRacer.Motors.All, 0)
     }
 })
 // 校正紅外線感應器的特性曲線
 function CalibrateIR () {
     BitRacer.CalibrateBegin()
-    BitRacer.motorRun(BitRacer.Motors.All, 250)
+    BitRacer.motorRun(BitRacer.Motors.All, 200)
     basic.pause(500)
     BitRacer.motorRun(BitRacer.Motors.All, 0)
     BitRacer.CalibrateEnd(BitRacer.LineColor.White)
@@ -226,3 +232,22 @@ function get_IR_Data () {
     }
     return IR
 }
+let IR: number[] = []
+let turn_counter = 0
+let line_counter = 0
+let speed_trun = 0
+let PD_Value = 0
+let trace_err_old = 0
+let delta_err = 0
+let trace_err = 0
+let line_position = 0
+let crossroad_type = 0
+let goal_counter = 0
+let IR_M = 0
+let IR_new: number[] = []
+let IR_R = 0
+let IR_L = 0
+let ModeSelected = 0
+BitRacer.motorRun(BitRacer.Motors.All, 0)
+ModeSelected = 0
+basic.showNumber(ModeSelected)
