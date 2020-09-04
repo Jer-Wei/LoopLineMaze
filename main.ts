@@ -3,17 +3,21 @@ function detect_crossroad_type () {
     IR_R = 0
     while (true) {
         IR_new = get_IR_Data()
+        serial.writeNumbers(IR_new)
         if (IR_new[2] > 1200) {
             IR_M = 1
         } else {
             IR_M = 0
         }
+        serial.writeValue("IR_M", IR_M)
         if (IR_new[0] > 1200) {
             IR_L = 1
         }
+        serial.writeValue("IR_L", IR_L)
         if (IR_new[4] > 1200) {
             IR_R = 1
         }
+        serial.writeValue("IR_R", IR_R)
         // 終點圓形判定
         // IR[0], IR[4], IR[2] 均為 1200以上50次
         if (IR_new[0] > 1200 && IR_new[4] > 1200 && IR_new[2] > 1200) {
@@ -28,7 +32,7 @@ function detect_crossroad_type () {
             goal_counter = 0
         }
         // 十字路口或T字路口判斷
-        if (IR_new[0] < 500 && IR_L == 1 && (IR_new[4] < 500 && IR_R == 1)) {
+        if (IR_new[0] < 600 && IR_L == 1 && (IR_new[4] < 600 && IR_R == 1)) {
             if (IR_M == 1) {
                 // 十字路口 (7)
                 crossroad_type = 7
@@ -40,7 +44,7 @@ function detect_crossroad_type () {
             }
         }
         // 左卜或左彎判斷
-        if (IR_new[0] < 500 && IR_L == 1 && IR_R == 0) {
+        if (IR_new[0] < 600 && IR_L == 1 && IR_R == 0) {
             if (IR_M == 1) {
                 // 左卜(5)
                 crossroad_type = 5
@@ -52,7 +56,7 @@ function detect_crossroad_type () {
             }
         }
         // 右卜或右彎判斷
-        if (IR_new[4] < 500 && IR_R == 1 && IR_L == 0) {
+        if (IR_new[4] < 600 && IR_R == 1 && IR_L == 0) {
             if (IR_M == 1) {
                 // 右卜(6)
                 crossroad_type = 6
@@ -64,8 +68,7 @@ function detect_crossroad_type () {
             }
         }
         // 死路判斷
-        if (IR_new[2] < 500 && (IR_new[4] < 500 && IR_new[0] < 500) && (IR_L == 0 && IR_R < 0)) {
-            // 右彎(2)
+        if (IR_new[2] < 600 && (IR_new[1] < 600 && IR_new[3] < 600) && (IR_L == 0 && IR_R == 0)) {
             crossroad_type = 4
             break;
         }
@@ -90,58 +93,48 @@ input.onButtonPressed(Button.A, function () {
     basic.showNumber(ModeSelected)
 })
 function discoverTreeMaze () {
-    drive_car(0)
-    if (crossroad_type == 1 || crossroad_type == 5 || (crossroad_type == 3 || crossroad_type == 7)) {
-        basic.showNumber(crossroad_type)
-        drive_car(1)
-    }
-    if (crossroad_type == 2) {
-        basic.showNumber(crossroad_type)
-        drive_car(2)
-    }
-    if (crossroad_type == 4) {
-        basic.showNumber(crossroad_type)
-        drive_car(3)
-    }
-    if (crossroad_type == 6) {
-        basic.showNumber(crossroad_type)
-    }
-    if (crossroad_type == 8) {
-        basic.showNumber(crossroad_type)
-        drive_car(4)
+    while (true) {
+        drive_car(0)
+        if (crossroad_type == 1 || crossroad_type == 5 || (crossroad_type == 3 || crossroad_type == 7)) {
+            drive_car(1)
+        } else if (crossroad_type == 2) {
+            drive_car(2)
+        } else if (crossroad_type == 4) {
+            drive_car(3)
+        } else if (crossroad_type == 6) {
+        	
+        } else if (crossroad_type == 8) {
+            drive_car(4)
+            break;
+        }
     }
 }
 // 車輛駕駛(模式)
 // 0:直行, 1:左轉, 2:右轉, 3:迴轉, 4:停止
 function drive_car (Mode: number) {
     trace_err_old = 0
-    speed_trun = 390
+    speed_trun = 400
     // 直行
     if (Mode == 0) {
-        basic.showString("^")
         line_counter = 0
         while (true) {
-            trace_line(320, 250, 140)
+            trace_line(350, 250, 140)
             IR_new = get_IR_Data()
             line_counter += 1
-            if (line_counter > 40 && (IR_new[0] > 1200 || IR_new[4] > 1200 || IR_new[1] < 500 && IR_new[2] < 500 && IR_new[3] < 500)) {
+            if (line_counter > 40 && (IR_new[0] > 1200 || IR_new[4] > 1200 || IR_new[1] < 600 && IR_new[2] < 600 && IR_new[3] < 600)) {
                 line_counter = 0
                 BitRacer.motorRun(BitRacer.Motors.All, 50)
                 break;
             }
         }
         detect_crossroad_type()
-    }
-    // 左轉
-    if (Mode == 1) {
+    } else if (Mode == 1) {
         BitRacer.LED(BitRacer.LEDs.LED_L, BitRacer.LEDswitch.on)
-        basic.showString("L")
         while (true) {
-            BitRacer.motorRun(BitRacer.Motors.M_L, 0 + speed_trun)
-            BitRacer.motorRun(BitRacer.Motors.M_R, 0 - speed_trun)
-            IR_new = get_IR_Data()
+            BitRacer.motorRun(BitRacer.Motors.M_R, speed_trun)
+            BitRacer.motorRun(BitRacer.Motors.M_L, 0 - speed_trun)
             turn_counter += 1
-            if (turn_counter > 100 && IR_new[0] > 1200) {
+            if (turn_counter >= 100 && BitRacer.readIR2(0) >= 1200) {
                 turn_counter = 0
                 while (true) {
                     trace_line(0, 220, 250)
@@ -154,17 +147,13 @@ function drive_car (Mode: number) {
             }
         }
         BitRacer.LED(BitRacer.LEDs.LED_L, BitRacer.LEDswitch.off)
-        basic.clearScreen()
-    }
-    if (Mode == 2) {
+    } else if (Mode == 2) {
         BitRacer.LED(BitRacer.LEDs.LED_R, BitRacer.LEDswitch.on)
-        basic.showString("R")
         while (true) {
-            BitRacer.motorRun(BitRacer.Motors.M_L, 0 - speed_trun)
-            BitRacer.motorRun(BitRacer.Motors.M_R, 0 + speed_trun)
-            IR_new = get_IR_Data()
+            BitRacer.motorRun(BitRacer.Motors.M_R, 0 - speed_trun)
+            BitRacer.motorRun(BitRacer.Motors.M_L, speed_trun)
             turn_counter += 1
-            if (turn_counter > 100 && IR_new[4] > 1200) {
+            if (turn_counter >= 100 && BitRacer.readIR2(4) >= 1200) {
                 turn_counter = 0
                 while (true) {
                     trace_line(0, 220, 250)
@@ -177,17 +166,13 @@ function drive_car (Mode: number) {
             }
         }
         BitRacer.LED(BitRacer.LEDs.LED_R, BitRacer.LEDswitch.off)
-        basic.clearScreen()
-    }
-    if (Mode == 3) {
+    } else if (Mode == 3) {
         BitRacer.LED(BitRacer.LEDs.LED_R, BitRacer.LEDswitch.on)
-        basic.showString("R")
         while (true) {
-            BitRacer.motorRun(BitRacer.Motors.M_L, 0 - speed_trun)
-            BitRacer.motorRun(BitRacer.Motors.M_R, 0 + speed_trun)
-            IR_new = get_IR_Data()
+            BitRacer.motorRun(BitRacer.Motors.M_R, 0 - speed_trun)
+            BitRacer.motorRun(BitRacer.Motors.M_L, speed_trun)
             turn_counter += 1
-            if (turn_counter > 200 && IR_new[4] > 1200) {
+            if (turn_counter > 200 && BitRacer.readIR2(4) > 1200) {
                 turn_counter = 0
                 while (true) {
                     trace_line(0, 220, 250)
@@ -200,9 +185,7 @@ function drive_car (Mode: number) {
             }
         }
         BitRacer.LED(BitRacer.LEDs.LED_R, BitRacer.LEDswitch.off)
-        basic.clearScreen()
-    }
-    if (Mode == 4) {
+    } else if (Mode == 4) {
         BitRacer.motorRun(BitRacer.Motors.All, 0)
     }
 }
