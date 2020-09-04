@@ -1,3 +1,17 @@
+function finalrun () {
+    index = 0
+    while (true) {
+        drive_car(0)
+        if (car_action[index] != 0) {
+            drive_car(car_action[index])
+            if (car_action[index] == 4) {
+                break;
+            }
+        }
+        index += 1
+    }
+    index = 0
+}
 function detect_crossroad_type () {
     IR_L = 0
     IR_R = 0
@@ -230,11 +244,14 @@ input.onButtonPressed(Button.B, function () {
         music.playMelody("C C E - C5 C5 - - ", 120)
     }
     if (ModeSelected == 1) {
+        music.playTone(262, music.beat(BeatFraction.Half))
         basic.pause(1000)
         discoverTreeMaze()
     }
     if (ModeSelected == 2) {
-    	
+        music.playTone(262, music.beat(BeatFraction.Half))
+        basic.pause(1000)
+        finalrun()
     }
     if (ModeSelected == 3) {
     	
@@ -243,11 +260,14 @@ input.onButtonPressed(Button.B, function () {
     	
     }
     if (ModeSelected == 5) {
+        music.playTone(262, music.beat(BeatFraction.Half))
+        basic.pause(1000)
         BitRacer.motorRun(BitRacer.Motors.All, 900)
         basic.pause(5000)
         BitRacer.motorRun(BitRacer.Motors.All, -900)
         basic.pause(5000)
         BitRacer.motorRun(BitRacer.Motors.All, 0)
+        music.playTone(262, music.beat(BeatFraction.Half))
     }
 })
 // 校正紅外線感應器的特性曲線
@@ -271,8 +291,6 @@ let optimIndex = 0
 let turn_counter = 0
 let line_counter = 0
 let speed_trun = 0
-let car_action: number[] = []
-let index = 0
 let PD_Value = 0
 let trace_err_old = 0
 let delta_err = 0
@@ -284,6 +302,8 @@ let IR_M = 0
 let IR_new: number[] = []
 let IR_R = 0
 let IR_L = 0
+let car_action: number[] = []
+let index = 0
 let ModeSelected = 0
 BitRacer.motorRun(BitRacer.Motors.All, 0)
 ModeSelected = 0
