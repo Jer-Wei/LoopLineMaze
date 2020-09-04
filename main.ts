@@ -247,11 +247,13 @@ input.onButtonPressed(Button.B, function () {
         music.playTone(262, music.beat(BeatFraction.Half))
         basic.pause(1000)
         discoverTreeMaze()
+        music.playTone(262, music.beat(BeatFraction.Half))
     }
     if (ModeSelected == 2) {
         music.playTone(262, music.beat(BeatFraction.Half))
         basic.pause(1000)
         finalrun()
+        music.playTone(262, music.beat(BeatFraction.Half))
     }
     if (ModeSelected == 3) {
     	
