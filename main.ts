@@ -93,21 +93,29 @@ input.onButtonPressed(Button.A, function () {
     basic.showNumber(ModeSelected)
 })
 function discoverTreeMaze () {
+    index = 0
     while (true) {
+        let car_action: number[] = []
         drive_car(0)
         if (crossroad_type == 1 || crossroad_type == 5 || (crossroad_type == 3 || crossroad_type == 7)) {
             drive_car(1)
+            car_action[index] = 1
         } else if (crossroad_type == 2) {
             drive_car(2)
+            car_action[index] = 2
         } else if (crossroad_type == 4) {
             drive_car(3)
+            car_action[index] = 3
         } else if (crossroad_type == 6) {
-        	
+            car_action[index] = 0
         } else if (crossroad_type == 8) {
             drive_car(4)
+            car_action[index] = 4
             break;
         }
+        index += 1
     }
+    index = 0
 }
 // 車輛駕駛(模式)
 // 0:直行, 1:左轉, 2:右轉, 3:迴轉, 4:停止
@@ -240,6 +248,7 @@ let IR: number[] = []
 let turn_counter = 0
 let line_counter = 0
 let speed_trun = 0
+let index = 0
 let PD_Value = 0
 let trace_err_old = 0
 let delta_err = 0
