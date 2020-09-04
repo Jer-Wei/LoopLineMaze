@@ -94,8 +94,8 @@ input.onButtonPressed(Button.A, function () {
 })
 function discoverTreeMaze () {
     index = 0
+    car_action = []
     while (true) {
-        let car_action: number[] = []
         drive_car(0)
         if (crossroad_type == 1 || crossroad_type == 5 || (crossroad_type == 3 || crossroad_type == 7)) {
             drive_car(1)
@@ -111,6 +111,7 @@ function discoverTreeMaze () {
         } else if (crossroad_type == 8) {
             drive_car(4)
             car_action[index] = 4
+            optimize_action()
             break;
         }
         index += 1
@@ -197,6 +198,27 @@ function drive_car (Mode: number) {
         BitRacer.motorRun(BitRacer.Motors.All, 0)
     }
 }
+function optimize_action () {
+    while (true) {
+        optimIndex = car_action.indexOf(3)
+        if (optimIndex == -1) {
+            break;
+        }
+        if (car_action[optimIndex - 1] + car_action[optimIndex + 1] == 1) {
+            car_action.removeAt(optimIndex)
+            car_action.removeAt(optimIndex)
+            car_action[optimIndex - 1] = 2
+        } else if (car_action[optimIndex - 1] + car_action[optimIndex + 1] == 2) {
+            car_action.removeAt(optimIndex)
+            car_action.removeAt(optimIndex)
+            car_action[optimIndex - 1] = 0
+        } else if (car_action[optimIndex - 1] + car_action[optimIndex + 1] == 3) {
+            car_action.removeAt(optimIndex)
+            car_action.removeAt(optimIndex)
+            car_action[optimIndex - 1] = 3
+        }
+    }
+}
 input.onButtonPressed(Button.AB, function () {
     BitRacer.motorRun(BitRacer.Motors.All, 0)
 })
@@ -245,9 +267,11 @@ function get_IR_Data () {
     return IR
 }
 let IR: number[] = []
+let optimIndex = 0
 let turn_counter = 0
 let line_counter = 0
 let speed_trun = 0
+let car_action: number[] = []
 let index = 0
 let PD_Value = 0
 let trace_err_old = 0
