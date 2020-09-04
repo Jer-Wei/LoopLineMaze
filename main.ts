@@ -98,17 +98,9 @@ function trace_line (speed: number, Kp: number, Kd: number) {
     BitRacer.motorRun(BitRacer.Motors.M_L, speed - PD_Value)
     BitRacer.motorRun(BitRacer.Motors.M_R, speed + PD_Value)
 }
-input.onButtonPressed(Button.A, function () {
-    BitRacer.motorRun(BitRacer.Motors.All, 0)
-    ModeSelected += 1
-    if (ModeSelected > 5) {
-        ModeSelected = 0
-    }
-    basic.showNumber(ModeSelected)
-})
+
 function discoverTreeMaze () {
     index = 0
-    car_action = []
     while (true) {
         drive_car(0)
         if (crossroad_type == 1 || crossroad_type == 5 || (crossroad_type == 3 || crossroad_type == 7)) {
@@ -125,7 +117,6 @@ function discoverTreeMaze () {
         } else if (crossroad_type == 8) {
             drive_car(4)
             car_action[index] = 4
-            optimize_action()
             break;
         }
         index += 1
@@ -136,12 +127,11 @@ function discoverTreeMaze () {
 // 0:直行, 1:左轉, 2:右轉, 3:迴轉, 4:停止
 function drive_car (Mode: number) {
     trace_err_old = 0
-    speed_trun = 400
     // 直行
     if (Mode == 0) {
         line_counter = 0
         while (true) {
-            trace_line(350, 250, 140)
+            trace_line(movespeed, 250, 140)
             IR_new = get_IR_Data()
             line_counter += 1
             if (line_counter > 40 && (IR_new[0] > 1200 || IR_new[4] > 1200 || IR_new[1] < 600 && IR_new[2] < 600 && IR_new[3] < 600)) {
@@ -154,8 +144,8 @@ function drive_car (Mode: number) {
     } else if (Mode == 1) {
         BitRacer.LED(BitRacer.LEDs.LED_L, BitRacer.LEDswitch.on)
         while (true) {
-            BitRacer.motorRun(BitRacer.Motors.M_R, speed_trun)
-            BitRacer.motorRun(BitRacer.Motors.M_L, 0 - speed_trun)
+            BitRacer.motorRun(BitRacer.Motors.M_R, trunspeed)
+            BitRacer.motorRun(BitRacer.Motors.M_L, 0 - trunspeed)
             turn_counter += 1
             if (turn_counter >= 100 && BitRacer.readIR2(0) >= 1200) {
                 turn_counter = 0
@@ -173,8 +163,8 @@ function drive_car (Mode: number) {
     } else if (Mode == 2) {
         BitRacer.LED(BitRacer.LEDs.LED_R, BitRacer.LEDswitch.on)
         while (true) {
-            BitRacer.motorRun(BitRacer.Motors.M_R, 0 - speed_trun)
-            BitRacer.motorRun(BitRacer.Motors.M_L, speed_trun)
+            BitRacer.motorRun(BitRacer.Motors.M_R, 0 - trunspeed)
+            BitRacer.motorRun(BitRacer.Motors.M_L, trunspeed)
             turn_counter += 1
             if (turn_counter >= 100 && BitRacer.readIR2(4) >= 1200) {
                 turn_counter = 0
@@ -192,8 +182,8 @@ function drive_car (Mode: number) {
     } else if (Mode == 3) {
         BitRacer.LED(BitRacer.LEDs.LED_R, BitRacer.LEDswitch.on)
         while (true) {
-            BitRacer.motorRun(BitRacer.Motors.M_R, 0 - speed_trun)
-            BitRacer.motorRun(BitRacer.Motors.M_L, speed_trun)
+            BitRacer.motorRun(BitRacer.Motors.M_R, 0 - trunspeed)
+            BitRacer.motorRun(BitRacer.Motors.M_L, trunspeed)
             turn_counter += 1
             if (turn_counter > 200 && BitRacer.readIR2(4) > 1200) {
                 turn_counter = 0
@@ -226,7 +216,7 @@ function optimize_action () {
             car_action.removeAt(optimIndex)
             car_action.removeAt(optimIndex)
             car_action[optimIndex - 1] = 0
-        } else if (car_action[optimIndex - 1] + car_action[optimIndex + 1] == 3) {
+        } else if (car_action[optimIndex - 1] + car_action[optimIndex + 1] == 3 || car_action[optimIndex - 1] + car_action[optimIndex + 1] == 0) {
             car_action.removeAt(optimIndex)
             car_action.removeAt(optimIndex)
             car_action[optimIndex - 1] = 3
@@ -236,30 +226,50 @@ function optimize_action () {
 input.onButtonPressed(Button.AB, function () {
     BitRacer.motorRun(BitRacer.Motors.All, 0)
 })
+input.onButtonPressed(Button.A, function () {
+    BitRacer.motorRun(BitRacer.Motors.All, 0)
+    ModeSelected += 1
+    if (ModeSelected > 5) {
+        ModeSelected = 0
+    }
+    basic.showNumber(ModeSelected)
+})
 input.onButtonPressed(Button.B, function () {
     if (ModeSelected == 0) {
         music.playTone(262, music.beat(BeatFraction.Half))
         basic.pause(1000)
         CalibrateIR()
         music.playMelody("C C E - C5 C5 - - ", 120)
-    }
-    if (ModeSelected == 1) {
+    } else if (ModeSelected == 1) {
         music.playTone(262, music.beat(BeatFraction.Half))
-        basic.pause(1000)
+        basic.pause(2000)
+        basic.showIcon(IconNames.Ghost)
         discoverTreeMaze()
-    }
-    if (ModeSelected == 2) {
+        basic.showString("O")
+        optimize_action()
+        music.playTone(500, music.beat(BeatFraction.Whole))
+        basic.showNumber(ModeSelected)
+    } else if (ModeSelected == 2) {
+        movespeed = 360
         music.playTone(262, music.beat(BeatFraction.Half))
-        basic.pause(1000)
+        basic.pause(2000)
+        basic.showIcon(IconNames.Target)
         finalrun()
-    }
-    if (ModeSelected == 3) {
+        movespeed = 300
+        music.playTone(500, music.beat(BeatFraction.Whole))
+        basic.showNumber(ModeSelected)      
+    } else if (ModeSelected == 3) {
+        movespeed = 380
+        music.playTone(262, music.beat(BeatFraction.Half))
+        basic.pause(2000)
+        basic.showIcon(IconNames.Rabbit)
+        finalrun()
+        movespeed = 300
+        music.playTone(500, music.beat(BeatFraction.Whole))
+        basic.showNumber(ModeSelected)  
+    } else if (ModeSelected == 4) {
     	
-    }
-    if (ModeSelected == 4) {
-    	
-    }
-    if (ModeSelected == 5) {
+    } else if (ModeSelected == 5) {
         music.playTone(262, music.beat(BeatFraction.Half))
         basic.pause(1000)
         BitRacer.motorRun(BitRacer.Motors.All, 900)
@@ -290,7 +300,8 @@ let IR: number[] = []
 let optimIndex = 0
 let turn_counter = 0
 let line_counter = 0
-let speed_trun = 0
+let trunspeed = 0
+let movespeed = 0
 let PD_Value = 0
 let trace_err_old = 0
 let delta_err = 0
@@ -308,3 +319,5 @@ let ModeSelected = 0
 BitRacer.motorRun(BitRacer.Motors.All, 0)
 ModeSelected = 0
 basic.showNumber(ModeSelected)
+trunspeed = 400
+movespeed = 300
