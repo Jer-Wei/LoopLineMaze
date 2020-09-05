@@ -142,7 +142,7 @@ function drive_car (Mode: number) {
     if (Mode == 0) {
         line_counter = 0
         while (true) {
-            trace_line(movespeed, 250, 140)
+            trace_line(movespeed, mkp, mkd)
             IR_new = get_IR_Data()
             line_counter += 1
             if (line_counter > 40 && (IR_new[0] > 1200 || IR_new[4] > 1200 || IR_new[1] < 600 && IR_new[2] < 600 && IR_new[3] < 600)) {
@@ -264,27 +264,32 @@ input.onButtonPressed(Button.B, function () {
         music.playTone(262, music.beat(BeatFraction.Half))
         basic.pause(2000)
         basic.showIcon(IconNames.Ghost)
+        movespeed = 365
+        mkp=250
+        mkd=120
         discoverTreeMaze()
         basic.showString("O")
         optimize_action()
         music.playTone(500, music.beat(BeatFraction.Whole))
         basic.showNumber(ModeSelected)
     } else if (ModeSelected == 2) {
-        movespeed = 360
         music.playTone(262, music.beat(BeatFraction.Half))
         basic.pause(2000)
         basic.showIcon(IconNames.Target)
+        movespeed = 395
+        mkp=250
+        mkd=120
         finalrun()
-        movespeed = 370
         music.playTone(500, music.beat(BeatFraction.Whole))
         basic.showNumber(ModeSelected)      
-    } else if (ModeSelected == 3) {
-        movespeed = 400
+    } else if (ModeSelected == 3) { 
         music.playTone(262, music.beat(BeatFraction.Half))
         basic.pause(2000)
         basic.showIcon(IconNames.Rabbit)
+        movespeed = 420
+        mkp=220
+        mkd=140
         finalrun()
-        movespeed = 300
         music.playTone(500, music.beat(BeatFraction.Whole))
         basic.showNumber(ModeSelected)  
     } else if (ModeSelected == 4) {
@@ -323,6 +328,8 @@ let turn_counter = 0
 let line_counter = 0
 let trunspeed = 0
 let movespeed = 0
+let mkp =0
+let mkd =0
 let PD_Value = 0
 let trace_err_old = 0
 let delta_err = 0
@@ -342,5 +349,5 @@ let ModeSelected = 0
 BitRacer.motorRun(BitRacer.Motors.All, 0)
 ModeSelected = 0
 basic.showNumber(ModeSelected)
-trunspeed = 420
-movespeed = 350
+trunspeed = 410
+movespeed = 360
