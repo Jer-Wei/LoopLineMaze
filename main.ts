@@ -101,14 +101,25 @@ function trace_line (speed: number, Kp: number, Kd: number) {
 
 function discoverTreeMaze () {
     index = 0
+    rightcounter = 0
+    leftcounter = 0
     while (true) {
         drive_car(0)
-        if (crossroad_type == 1 || crossroad_type == 5 || (crossroad_type == 3 || crossroad_type == 7)) {
+        if (leftcounter > 4 && crossroad_type == 5) {
+            car_action[index] = 0
+            leftcounter = 0
+        } else if (leftcounter > 4 && (crossroad_type == 3 || crossroad_type == 7 || crossroad_type == 6)) {
+            drive_car(2)
+            car_action[index] = 2
+            leftcounter = 0
+        } else if (crossroad_type == 1 || crossroad_type == 5 || (crossroad_type == 3 || crossroad_type == 7)) {
             drive_car(1)
             car_action[index] = 1
+            leftcounter += 1
         } else if (crossroad_type == 2) {
             drive_car(2)
             car_action[index] = 2
+            leftcounter = 0
         } else if (crossroad_type == 4) {
             drive_car(3)
             car_action[index] = 3
@@ -200,6 +211,15 @@ function drive_car (Mode: number) {
         BitRacer.LED(BitRacer.LEDs.LED_R, BitRacer.LEDswitch.off)
     } else if (Mode == 4) {
         BitRacer.motorRun(BitRacer.Motors.All, 0)
+    } else if (Mode == 9) {
+        line_counter = 0
+        while (line_counter <= 40) {
+            trace_line(400, 230, 120)
+            IR_new = get_IR_Data()
+            line_counter += 1
+        }
+        BitRacer.motorRun(BitRacer.Motors.All, 50)
+        line_counter = 0
     }
 }
 function optimize_action () {
@@ -255,11 +275,11 @@ input.onButtonPressed(Button.B, function () {
         basic.pause(2000)
         basic.showIcon(IconNames.Target)
         finalrun()
-        movespeed = 300
+        movespeed = 370
         music.playTone(500, music.beat(BeatFraction.Whole))
         basic.showNumber(ModeSelected)      
     } else if (ModeSelected == 3) {
-        movespeed = 380
+        movespeed = 400
         music.playTone(262, music.beat(BeatFraction.Half))
         basic.pause(2000)
         basic.showIcon(IconNames.Rabbit)
@@ -268,7 +288,8 @@ input.onButtonPressed(Button.B, function () {
         music.playTone(500, music.beat(BeatFraction.Whole))
         basic.showNumber(ModeSelected)  
     } else if (ModeSelected == 4) {
-    	
+        basic.pause(2000)
+    	drive_car(9)
     } else if (ModeSelected == 5) {
         music.playTone(262, music.beat(BeatFraction.Half))
         basic.pause(1000)
@@ -315,9 +336,11 @@ let IR_R = 0
 let IR_L = 0
 let car_action: number[] = []
 let index = 0
+let leftcounter = 0
+let rightcounter = 0
 let ModeSelected = 0
 BitRacer.motorRun(BitRacer.Motors.All, 0)
 ModeSelected = 0
 basic.showNumber(ModeSelected)
-trunspeed = 400
-movespeed = 300
+trunspeed = 420
+movespeed = 350
